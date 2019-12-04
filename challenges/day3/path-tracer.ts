@@ -1,25 +1,32 @@
 export type Point = {
   x: number;
   y: number;
-}
+};
 
-export const tracePath = (instructions: string): Set<string> => {
+export type Step = [number, Point];
+
+type StepsMap = Map<number, { x: number, y: number }>;
+
+export const tracePath = (instructions: string): StepsMap => {
   const instructionsList = instructions.split(',');
-  const path: Set<string> = new Set();
+  const steps = new Map() as StepsMap;
   let coordinate = { x: 0, y: 0 };
+  let step = 0;
 
   instructionsList.forEach(instruction => {
     const newCoordinate = getNewCoordinate(instruction, coordinate);
     const intermediatePoints = getLinePoints(coordinate, newCoordinate);
-    path.add(JSON.stringify(coordinate));
-    intermediatePoints.forEach(point => path.add(JSON.stringify(point)));
-    path.add(JSON.stringify(newCoordinate));
-
+    // path.add(JSON.stringify(coordinate));
+    intermediatePoints.forEach(point => {
+      step += 1;
+      steps.set(step, point);
+    });
+    step += 1;
+    steps.set(step, newCoordinate);
     coordinate = newCoordinate;
   });
 
-  path.delete(JSON.stringify({ x: 0, y: 0 }));
-  return path;
+  return steps;
 };
 
 const getNewCoordinate = (instruction: string, { x, y }: Point) => {
